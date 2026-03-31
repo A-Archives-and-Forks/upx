@@ -96,7 +96,9 @@ jobs:
       fail-fast: false
       matrix:
         container:
+          - alpine:3.9
           - alpine:3.23
+          - i386/alpine:3.9
           - i386/alpine:3.23
         cc:
           - clang
@@ -110,11 +112,12 @@ jobs:
     runs-on: ubuntu-latest
     container: ${{ matrix.container }}
     env:
+      UPX_CMAKE_BUILD_FLAGS:
       UPX_CONFIG_DISABLE_SHARED_LIBS: 'ON'
     steps:
       - name: ${{ format('Install packages {0}', matrix.container) }}
         shell: sh
-        run: apk update && apk upgrade && apk add bash clang cmake file g++ git make
+        run: apk update && apk upgrade && apk add bash clang clang-dev cmake file g++ git make
       - name: ${{ format('Check out {0} source code', github.ref_name) }}
         run: |
           git config --global --add safe.directory '*' # needed when running in a container
