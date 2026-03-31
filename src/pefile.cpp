@@ -2782,8 +2782,7 @@ void PeFile::rebuildRelocs(SPAN_S(byte) & extra_info, unsigned bits, unsigned fl
         (flags & IMAGE_FILE_RELOCS_STRIPPED))
         return;
 
-    if (ODSIZE(PEDIR_BASERELOC) == 8) // some tricky dlls use this
-    {
+    if (ODSIZE(PEDIR_BASERELOC) == 8) { // some tricky dlls use this
         omemcpy(obuf + (ODADDR(PEDIR_BASERELOC) - rvamin), "\x0\x0\x0\x0\x8\x0\x0\x0", 8);
         return;
     }
@@ -2791,9 +2790,9 @@ void PeFile::rebuildRelocs(SPAN_S(byte) & extra_info, unsigned bits, unsigned fl
     // Comments at end of this file say that compressed relocs are optional.
     // Try to detect their presence.  There might be no compressed relocs.
 #if WITH_XSPAN >= 2
-    const unsigned headway = extra_info.size_bytes();
+    const size_t headway = extra_info.size_bytes();
 #else
-    const unsigned headway = 5;
+    const size_t headway = 5;
 #endif
     unsigned orig_crelocs = 0;
     byte big = 0;
