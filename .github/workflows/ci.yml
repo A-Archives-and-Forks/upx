@@ -55,7 +55,7 @@ jobs:
           # install upx-stubtools
           curl -sS -L https://github.com/upx/upx-stubtools/releases/download/v20221212/bin-upx-20221212.tar.xz | tar -xJ
       - run: dpkg -l
-      - name: Check out code
+      - name: ${{ format('Check out {0} source code', github.ref_name) }}
         run: |
           git config --global --add safe.directory '*' # needed when running in a container
           git clone --branch "$GITHUB_REF_NAME" --depth 1 "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" .
@@ -117,12 +117,13 @@ jobs:
     steps:
       - name: ${{ format('Install packages {0}', matrix.container) }}
         shell: sh
-        run: apk update && apk upgrade && apk add bash clang clang-dev cmake file g++ git make
+        run: apk update && apk upgrade && apk add bash clang clang-dev cmake coreutils file g++ git make
       - name: ${{ format('Check out {0} source code', github.ref_name) }}
         run: |
           git config --global --add safe.directory '*' # needed when running in a container
           git clone --branch "$GITHUB_REF_NAME" --depth 1 "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" .
           git submodule update --init
+          git clone --depth=1 https://github.com/upx/upx-testsuite ../upx-testsuite
           # prepare environment
           xflags="-static ${{ matrix.cppflags }}"
           case "${{ matrix.cc }}" in
@@ -136,6 +137,8 @@ jobs:
       - run: $CXX -E -x c++ -dM /dev/null
       - run: make build/debug+test
       - run: make build/release+test
+      - run: cd build/debug   && bash ../../misc/testsuite/upx_testsuite_1.sh
+      - run: cd build/release && bash ../../misc/testsuite/upx_testsuite_1.sh
       - run: UPX_DEBUG_DOCTEST_VERBOSE=1 ./build/debug/upx --sysinfo -vv
       - run: UPX_DEBUG_DOCTEST_VERBOSE=1 ./build/release/upx --sysinfo -vv
       - name: Show summary
