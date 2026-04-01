@@ -90,7 +90,6 @@ jobs:
 
   # test various CPPFLAGS
   job-cppflags: # uses cmake + make
-    if: true
     needs: [ job-rebuild-and-verify-stubs ]
     strategy:
       fail-fast: false
@@ -117,7 +116,7 @@ jobs:
     steps:
       - name: ${{ format('Install packages {0}', matrix.container) }}
         shell: sh
-        run: apk update && apk upgrade && apk add bash clang clang-dev cmake coreutils file g++ git make
+        run: apk update && apk upgrade && apk add bash clang clang-dev cmake coreutils file g++ git make parallel
       - name: ${{ format('Check out {0} source code', github.ref_name) }}
         run: |
           git config --global --add safe.directory '*' # needed when running in a container
@@ -137,8 +136,10 @@ jobs:
       - run: $CXX -E -x c++ -dM /dev/null
       - run: make build/debug+test
       - run: make build/release+test
-      - run: cd build/debug   && bash ../../misc/testsuite/upx_testsuite_1.sh
-      - run: cd build/release && bash ../../misc/testsuite/upx_testsuite_1.sh
+      - name: Run test suite
+        run: |
+          jobs="debug release"
+          parallel -kv --lb 'cd build/{} && bash ../../misc/testsuite/upx_testsuite_1.sh' ::: $jobs
       - run: UPX_DEBUG_DOCTEST_VERBOSE=1 ./build/debug/upx --sysinfo -vv
       - run: UPX_DEBUG_DOCTEST_VERBOSE=1 ./build/release/upx --sysinfo -vv
       - name: Show summary
