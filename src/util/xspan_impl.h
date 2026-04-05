@@ -43,11 +43,32 @@
 XSPAN_NAMESPACE_BEGIN
 
 #if XSPAN_CONFIG_ENABLE_DEBUG
-#define XSPAN_DEBUG_ARGS const char *file, int line,
-#define XSPAN_DEBUG_IMPL src_file(file), src_line(line),
+#define XSPAN_DEBUG_ARGS XSpanFile ff,
+#define XSPAN_DEBUG_IMPL f(ff),
+#define XSPAN_DEBUG_PASS ff,
 #else
-#define XSPAN_DEBUG_ARGS /*empty*/
+#define XSPAN_DEBUG_ARGS XSpanFile,
 #define XSPAN_DEBUG_IMPL /*empty*/
+#define XSPAN_DEBUG_PASS /*empty*/
+#endif
+
+#if XSPAN_CONFIG_ENABLE_DEBUG
+struct XSpanFile final {
+    const char *src_file;
+    int src_line;
+    static forceinline_constexpr XSpanFile make(const char *f, int l) noexcept {
+        return XSpanFile(f, l);
+    }
+    forceinline_constexpr XSpanFile() noexcept : src_file(nullptr), src_line(0) {}
+    forceinline_constexpr XSpanFile(const char *f, int l) noexcept : src_file(f), src_line(l) {}
+    UPX_CXX_DISABLE_ADDRESS(XSpanFile)
+};
+#define XSpanFileMake() (XSPAN_NS(XSpanFile)(XSPAN_NS(XSpanFile)::make(__FILE__, __LINE__)))
+#else
+struct XSpanFile final {
+    forceinline_constexpr XSpanFile() noexcept {}
+    UPX_CXX_DISABLE_ADDRESS(XSpanFile)
+};
 #endif
 
 // HINT: set env-var "UPX_DEBUG_DOCTEST_DISABLE=1" for improved debugging experience
