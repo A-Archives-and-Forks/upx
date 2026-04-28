@@ -257,9 +257,9 @@ jobs:
           # make sure that we use posix-threads (pthread/winpthreads) and NOT win32-threads
           for f in i686-w64-mingw32-g++ i686-w64-mingw32-gcc x86_64-w64-mingw32-g++ x86_64-w64-mingw32-gcc; do
             if test -f /usr/bin/$f-posix; then sudo update-alternatives --set $f /usr/bin/$f-posix; fi
-            ls -l /usr/bin/${f}*
+            ls -ldF /usr/bin/${f}* || true
           done
-          ls -l /etc/alternatives/*mingw* || true
+          ls -ldF /etc/alternatives/*mingw* || true
       - run: (sudo dmidecode | sed -n -e '/System Information/,/^$/p') || true
         if: ${{ matrix.use_extra }}
       - run: sudo dmidecode -q || true
@@ -270,7 +270,7 @@ jobs:
         if: ${{ matrix.use_extra && matrix.use_wine }}
         run: |
           sudo apt-get install -y wine wine32:i386 wine64
-          ls -l /usr/bin/wine*
+          ls -ldF /usr/bin/wine* /etc/alternatives/*wine* || true
           mkdir -p -v ~/.wine && wineboot --init
       - uses: actions/checkout@v6
         with: { submodules: true }
