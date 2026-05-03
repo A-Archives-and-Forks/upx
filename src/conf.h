@@ -456,6 +456,7 @@ inline void mem_clear(T *object) noexcept {
     static_assert(std::is_trivially_copyable_v<T>);
     constexpr size_t size = sizeof(*object);
     static_assert(size >= 1 && size <= UPX_RSIZE_MAX_MEM);
+    // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
     memset((void *) object, 0, size);
 }
 // disable some overloads

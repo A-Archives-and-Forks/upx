@@ -72,30 +72,32 @@ jobs:
             use_arm64ec: true
             url: 'https://github.com/mstorsjo/llvm-mingw/releases/download/20260421/llvm-mingw-20260421-ucrt-ubuntu-22.04-x86_64.tar.xz'
 
-    name: ${{ format('{0} {1}', matrix.name, matrix.llvm_version) }}
-    runs-on: ubuntu-latest
-    #container: 'ubuntu:22.04'
-    container: 'ubuntu:26.04'
     env:
+      container: 'ubuntu:26.04'
       CMAKE_SYSTEM_NAME: Windows
       xflags: -D_WIN32_WINNT=0x0601
       #xflags: -D_WIN32_WINNT=0x0601 -DDOCTEST_CONFIG_DISABLE
+
+    name: ${{ format('{0} {1}', matrix.name, matrix.llvm_version) }}
+    runs-on: ubuntu-latest
+    #container: ${{ env.container }}
+    container: 'ubuntu:26.04'
     steps:
       - run: uname -a; pwd; id; umask
       - run: ulimit -a || true
-      - name: Install packages
+      - name: ${{ format('Install packages {0}', env.container) }}
         run: |
           dpkg --add-architecture i386
           apt-get update && apt-get upgrade -y
           apt-get install -y --no-install-recommends bash ca-certificates cmake curl file git make parallel strace tar time tree util-linux xz-utils zstd
       - run: dpkg -l
-      - name: Install Wine
+      - name: ${{ format('Install Wine {0}', env.container) }}
         run: |
           apt-get install -y wine wine32:i386 wine64
           ls -ldF /usr/bin/wine* /etc/alternatives/*wine* || true
           mkdir -p -v ~/.wine && wineboot --init
       - run: dpkg -l
-      - name: Check out code
+      - name: ${{ format('Check out {0} source code', github.ref_name) }}
         run: |
           git config --global --add safe.directory '*' # needed when running in a container
           git clone --branch "$GITHUB_REF_NAME" --depth 1 "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" .
