@@ -63,14 +63,14 @@ jobs:
             llvm_version: 21.1.8
             use_arm64ec: true
             url: 'https://github.com/mstorsjo/llvm-mingw/releases/download/20251216/llvm-mingw-20251216-ucrt-ubuntu-22.04-x86_64.tar.xz'
-          - name: llvm-mingw-20260421-msvcrt
-            llvm_version: 22.1.4
+          - name: llvm-mingw-20260505-msvcrt
+            llvm_version: 22.1.5
             use_arm64ec: true
-            url: 'https://github.com/mstorsjo/llvm-mingw/releases/download/20260421/llvm-mingw-20260421-msvcrt-ubuntu-22.04-x86_64.tar.xz'
-          - name: llvm-mingw-20260421-ucrt
-            llvm_version: 22.1.4
+            url: 'https://github.com/mstorsjo/llvm-mingw/releases/download/20260505/llvm-mingw-20260505-msvcrt-ubuntu-22.04-x86_64.tar.xz'
+          - name: llvm-mingw-20260505-ucrt
+            llvm_version: 22.1.5
             use_arm64ec: true
-            url: 'https://github.com/mstorsjo/llvm-mingw/releases/download/20260421/llvm-mingw-20260421-ucrt-ubuntu-22.04-x86_64.tar.xz'
+            url: 'https://github.com/mstorsjo/llvm-mingw/releases/download/20260505/llvm-mingw-20260505-ucrt-ubuntu-22.04-x86_64.tar.xz'
 
     env:
       container: 'ubuntu:26.04'
@@ -89,13 +89,7 @@ jobs:
         run: |
           dpkg --add-architecture i386
           apt-get update && apt-get upgrade -y
-          apt-get install -y --no-install-recommends bash ca-certificates cmake curl file git make parallel strace tar time tree util-linux xz-utils zstd
-      - run: dpkg -l
-      - name: ${{ format('Install Wine {0}', env.container) }}
-        run: |
-          apt-get install -y wine wine32:i386 wine64
-          ls -ldF /usr/bin/wine* /etc/alternatives/*wine* || true
-          mkdir -p -v ~/.wine && wineboot --init
+          apt-get install -y --no-install-recommends bash ca-certificates cmake curl file git make ninja-build parallel strace tar time tree util-linux xz-utils zstd
       - run: dpkg -l
       - name: ${{ format('Check out {0} source code', github.ref_name) }}
         run: |
@@ -199,6 +193,13 @@ jobs:
         uses: actions/upload-artifact@v6
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
 
+      - name: ${{ format('Install Wine {0}', env.container) }}
+        run: |
+          apt-get install -y wine wine32:i386 wine64
+          ls -ldF /usr/bin/wine* /etc/alternatives/*wine* || true
+          mkdir -p -v ~/.wine && wineboot --init
+      - run: dpkg -l
+
       - name: 'Run ctest tests i686 static with Wine'
         run: |
           make UPX_XTARGET=llvm-mingw/i686-w64-mingw32-clang-static xtarget/all+test
@@ -210,7 +211,6 @@ jobs:
           ls -ld ./build/*/*/*/XTesting/*/* || true
           rm -rf ./build/*/*/*/XTesting/*/*
 
-      - run: ulimit -a || true
       - name: 'Run test suite under Wine'
         #if: false
         run: |
