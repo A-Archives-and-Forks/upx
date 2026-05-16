@@ -231,3 +231,7 @@ jobs:
           parallel -kv --lb 'cd build/llvm-mingw/{} && bash ../../../../misc/testsuite/upx_testsuite_1.sh' ::: $jobs || true
           ls -ld ./build/*/*/*/tmp-upx-testsuite* || true
           rm -rf ./build/*/*/*/tmp-upx-testsuite*
+
+      - run: ls -l build/*/*/*/upx* || true
+      - run: llvm-size build/*/*/*/upx* || true
+      - run: file  build/*/*/*/upx* || true

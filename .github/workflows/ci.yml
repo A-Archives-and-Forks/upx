@@ -248,13 +248,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - run: uname -a; pwd; id; umask
-      - name: Install extra 32-bit and MinGW packages
+      - name: ${{ format('Install extra 32-bit and MinGW packages {0}', matrix.os) }}
         if: ${{ matrix.use_extra }}
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update && sudo apt-get upgrade -y
           sudo apt-get install -y dmidecode gdb libc6-dbg:i386 parallel strace valgrind
           sudo apt-get install -y g++-multilib g++-mingw-w64-i686 g++-mingw-w64-x86-64
+      - name: ${{ format('Install MinGW posix-threads {0}', matrix.os) }}
+        if: ${{ matrix.use_extra }}
+        run: |
           # make sure that we use posix-threads (pthread/winpthreads) and NOT win32-threads
           ls -ldF /etc/alternatives/*mingw* || true
           for f in i686-w64-mingw32-g++ i686-w64-mingw32-gcc x86_64-w64-mingw32-g++ x86_64-w64-mingw32-gcc; do
@@ -268,7 +271,7 @@ jobs:
         if: ${{ matrix.use_extra }}
       - run: sudo dmidecode || true
         if: ${{ matrix.use_extra }}
-      - name: Install Wine
+      - name: ${{ format('Install Wine {0}', matrix.os) }}
         if: ${{ matrix.use_extra && matrix.use_wine }}
         run: |
           sudo apt-get install -y wine wine32:i386 wine64
