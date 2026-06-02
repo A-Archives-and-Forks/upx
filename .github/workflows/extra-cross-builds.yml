@@ -202,14 +202,13 @@ jobs:
               CC="$CC -static"; CXX="$CXX -static" ;;
           esac
           if [[ "${{ matrix.container }}" == ubuntu:2[46].04 && $toolchain == powerpc64*-linux-gnu ]]; then true;
-            export CXX="$CXX -mcpu=power10"
+            export CC="$CC -mcpu=power10" CXX="$CXX -mcpu=power10"
           fi
           if [[ $toolchain == riscv64-linux-gnu ]]; then true;
-            #export CXX="$CXX -mno-strict-align"
+            #export CC="$CC -mno-strict-align" CXX="$CXX -mno-strict-align"
           fi
           if [[ "${{ matrix.container }}" == ubuntu:2[46].04 && $toolchain == riscv64-linux-gnu ]]; then true;
-            #export CXX="$CXX -mtune=generic-ooo"
-            export CXX="$CXX -mtune=thead-c906"
+            export CC="$CC -mtune=thead-c906" CXX="$CXX -mtune=thead-c906"
           fi
           export UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON
           [[ $toolchain == aarch64-linux-gnu ]] && export UPX_CONFIG_DISABLE_SELF_PACK_TEST=OFF
@@ -246,6 +245,8 @@ jobs:
         run: |
           N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-${{ matrix.container }}-${{ matrix.target }}" | sed 's/[^0-9a-zA-Z_.+-]/-/g')
           mkdir -p "tmp/artifact/$N"
+          dirs="${toolchain}/debug ${toolchain}/release"
+          for d in $dirs; do DESTDIR="$PWD/tmp/artifact/$N/InstallWithCMake/InstallWithDestdir/$d" cmake --install build/xtarget/$d; done
           (cd build && shopt -s nullglob && cp -v -ai --parents */upx{,.exe} */*/*/upx{,.exe} "../tmp/artifact/$N")
           (cd build && shopt -s globstar && cp -v -ai --parents **/dt_cxxlib.* "../tmp/artifact/$N")
           if command -v hardlink >/dev/null; then (cd "tmp/artifact/$N" && hardlink .) fi
