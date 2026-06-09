@@ -77,6 +77,7 @@ PackMaster::PackMaster(InputFile *f, Options *o) noexcept : fi(f) {
 
 PackMaster::~PackMaster() noexcept {
     upx::owner_delete(packer);
+    assert_noexcept(packer == nullptr);
     // restore global options
     if (saved_opt != nullptr) {
 #if WITH_THREADS
