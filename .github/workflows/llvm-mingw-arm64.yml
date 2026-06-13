@@ -3,7 +3,7 @@
 
 # see https://github.com/mstorsjo/llvm-mingw
 
-name: 'llvm-mingw'
+name: 'llvm-mingw-arm64'
 on:
   workflow_dispatch:
 defaults: { run: { shell: bash } }
@@ -14,7 +14,8 @@ env:
   DEBIAN_FRONTEND: noninteractive
   NO_COLOR: 1
   UPX_CMAKE_BUILD_FLAGS: --verbose
-  UPX_CMAKE_CONFIG_FLAGS: -Wdev --warn-uninitialized
+  UPX_CMAKE_CONFIG_FLAGS: -G "Unix Makefiles" -Wdev --warn-uninitialized
+  #UPX_CMAKE_CONFIG_FLAGS: -G Ninja -Wdev --warn-uninitialized
   UPX_CONFIG_HAVE_WORKING_BUILD_RPATH: 'ON'
   #UPX_DEBUG_DOCTEST_DISABLE: 1
   UPX_DEBUG_TEST_FLOAT_DIVISION_BY_ZERO: 1
@@ -22,7 +23,7 @@ env:
   ZSTD_CLEVEL: 17
 
 jobs:
-  job-llvm-mingw: # uses cmake + make
+  job-llvm-mingw-arm64: # uses cmake + make
     if: github.repository_owner == 'upx'
     strategy:
       fail-fast: false
@@ -40,6 +41,7 @@ jobs:
           - name: llvm-mingw-20250114-ucrt
             llvm_version: 19.1.7
             url: 'https://github.com/mstorsjo/llvm-mingw/releases/download/20250114/llvm-mingw-20250114-ucrt-aarch64.zip'
+          - name: llvm-mingw-20250709-ucrt
             llvm_version: 20.1.8
             url: 'https://github.com/mstorsjo/llvm-mingw/releases/download/20250709/llvm-mingw-20250709-ucrt-aarch64.zip'
           - name: llvm-mingw-20251216-ucrt
@@ -77,7 +79,7 @@ jobs:
           cd ~/.local/bin
           curl -sS -L -O '${{ matrix.url }}'
           ls -ldF ./llvm-mingw*.zip
-          tar -xoaf ./llvm-mingw*.zip
+          unzip -q ./llvm-mingw*.zip
           rm ./llvm-mingw*.zip
           # update PATH
           cd ./llvm-mingw*/bin
@@ -91,22 +93,26 @@ jobs:
       - name: 'Build clang aarch64'
         run: |
           export CC="aarch64-w64-mingw32-clang $xflags" CXX="aarch64-w64-mingw32-clang++ $xflags $cxxflags"
+          export UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON
           make UPX_XTARGET=llvm-mingw/aarch64-w64-mingw32-clang xtarget/all
       - name: 'Build clang aarch64 static'
         run: |
           export CC="aarch64-w64-mingw32-clang -static $xflags" CXX="aarch64-w64-mingw32-clang++ -static $xflags $cxxflags"
+          export UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON
           make UPX_XTARGET=llvm-mingw/aarch64-w64-mingw32-clang-static xtarget/all
 
       - name: 'Build clang arm64ec'
         if: ${{ matrix.use_arm64ec }}
         run: |
           export CC="arm64ec-w64-mingw32-clang $xflags" CXX="arm64ec-w64-mingw32-clang++ $xflags $cxxflags"
+          export UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON
           export UPX_CONFIG_DISABLE_SAVE_TEMPS=ON
           make UPX_XTARGET=llvm-mingw/arm64ec-w64-mingw32-clang xtarget/all || true
       - name: 'Build clang arm64ec static'
         if: ${{ matrix.use_arm64ec }}
         run: |
           export CC="arm64ec-w64-mingw32-clang -static $xflags" CXX="arm64ec-w64-mingw32-clang++ -static $xflags $cxxflags"
+          export UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON
           export UPX_CONFIG_DISABLE_SAVE_TEMPS=ON
           make UPX_XTARGET=llvm-mingw/arm64ec-w64-mingw32-clang-static xtarget/all || true
 
@@ -136,17 +142,19 @@ jobs:
         uses: actions/upload-artifact@v6
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
 
-      - name: ${{ format('Install Wine {0}', env.container) }}
+      - name: 'Run ctest tests aarch64 with Wine'
         run: |
-          apt-get install -y wine wine32:i386 wine64
-          ls -ldF /usr/bin/wine* /etc/alternatives/*wine* || true
-          mkdir -p -v ~/.wine && wineboot --init
+          UPX_DEBUG_DOCTEST_VERBOSE=1 $upx_exe_runner ./build/llvm-mingw/aarch64-w64-mingw32-clang/debug/upx.exe --sysinfo -vv
+          UPX_DEBUG_DOCTEST_VERBOSE=1 $upx_exe_runner ./build/llvm-mingw/aarch64-w64-mingw32-clang/release/upx.exe --sysinfo -vv
+          make UPX_XTARGET=llvm-mingw/aarch64-w64-mingw32-clang xtarget/all+test
+          ls -ld ./build/*/*/*/XTesting/*/* || true
+          rm -rf ./build/*/*/*/XTesting/*/*
 
-      - name: 'Run ctest tests x86_64 static with Wine'
+      - name: 'Run ctest tests aarch64 static with Wine'
         run: |
-          UPX_DEBUG_DOCTEST_VERBOSE=1 $upx_exe_runner ./build/llvm-mingw/x86_64-w64-mingw32-clang-static/debug/upx.exe --sysinfo -vv
-          UPX_DEBUG_DOCTEST_VERBOSE=1 $upx_exe_runner ./build/llvm-mingw/x86_64-w64-mingw32-clang-static/release/upx.exe --sysinfo -vv
-          make UPX_XTARGET=llvm-mingw/x86_64-w64-mingw32-clang-static xtarget/all+test
+          UPX_DEBUG_DOCTEST_VERBOSE=1 $upx_exe_runner ./build/llvm-mingw/aarch64-w64-mingw32-clang-static/debug/upx.exe --sysinfo -vv
+          UPX_DEBUG_DOCTEST_VERBOSE=1 $upx_exe_runner ./build/llvm-mingw/aarch64-w64-mingw32-clang-static/release/upx.exe --sysinfo -vv
+          make UPX_XTARGET=llvm-mingw/aarch64-w64-mingw32-clang-static xtarget/all+test
           ls -ld ./build/*/*/*/XTesting/*/* || true
           rm -rf ./build/*/*/*/XTesting/*/*
 
