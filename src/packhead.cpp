@@ -28,6 +28,7 @@
 #include "conf.h"
 #include "packhead.h"
 #include "filter.h" // for ft->unfilter()
+#include "packer.h"
 
 /*************************************************************************
 // PackHeader
@@ -206,10 +207,8 @@ bool PackHeader::decodePackHeaderFromBuf(SPAN_S(const byte) buf, int blen) {
         fprintf(stderr, "  decodePackHeaderFromBuf  version=%d  format=%d  method=%d  level=%d\n",
                 version, format, method, level);
     }
-    if (!((format >= 1 && format <= UPX_F_CPM86_CMD) ||
-          (format >= 129 && format <= UPX_F_DYLIB_PPC64))) {
+    if (!Packer::isValidFormat(format))
         throwCantUnpack("unknown format %d", format);
-    }
 
     //
     // decode the new variable length header

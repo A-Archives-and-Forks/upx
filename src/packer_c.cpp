@@ -33,7 +33,15 @@
 // compression method util
 **************************************************************************/
 
-/*static*/ bool Packer::isValidCompressionMethod(int m) {
+/*static*/ bool Packer::isValidFormat(int format) noexcept {
+    if (!((format >= 1 && format <= UPX_F_CPM86_CMD) ||
+          (format >= 129 && format <= UPX_F_DYLIB_PPC64))) {
+        return false;
+    }
+    return true;
+}
+
+/*static*/ bool Packer::isValidCompressionMethod(int m) noexcept {
     return M_IS_LZMA(m) || M_IS_NRV2B(m) || M_IS_NRV2D(m) || M_IS_NRV2E(m);
 }
 

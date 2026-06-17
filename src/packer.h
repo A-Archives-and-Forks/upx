@@ -214,7 +214,8 @@ protected:
 
     // compression handling [see packer_c.cpp]
 public:
-    static bool isValidCompressionMethod(int method);
+    static bool isValidFormat(int format) noexcept;
+    static bool isValidCompressionMethod(int method) noexcept;
 
 protected:
     const int *getDefaultCompressionMethods_8(int method, int level, int small = -1) const;
