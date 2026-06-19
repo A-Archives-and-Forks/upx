@@ -289,8 +289,8 @@ void PackTmt::unpack(OutputFile *fo) {
     // read extra_info from the tail of the decompressed image
     if (ph.u_len < 8)
         throwCantUnpack("file damaged");
-    const unsigned orig_entry = mem_size(1, get_le32(obuf + ph.u_len - 8));
-    const unsigned orelocsize = mem_size(1, get_le32(obuf + ph.u_len - 4));
+    const unsigned orig_entry = mem_size(1, get_le32(obuf + (ph.u_len - 8)));
+    const unsigned orelocsize = mem_size(1, get_le32(obuf + (ph.u_len - 4)));
     const unsigned osize = mem_size(1, ph.u_len - orelocsize);
 
     // unfilter
@@ -301,7 +301,7 @@ void PackTmt::unpack(OutputFile *fo) {
         if (ph.version < 11) {
             if (ph.u_len < 12)
                 throwCantUnpack("file damaged");
-            ft.cto = (byte) (get_le32(obuf + ph.u_len - 12) >> 24);
+            ft.cto = (byte) (get_le32(obuf + (ph.u_len - 12)) >> 24);
         }
         ft.unfilter(obuf, osize);
     }

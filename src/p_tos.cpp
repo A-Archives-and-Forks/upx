@@ -714,8 +714,8 @@ void PackTos::unpack(OutputFile *fo) {
             overlay -= 4; // this is our empty fixup
         checkOverlay(overlay);
 
-        fo->write(obuf + ph.u_len - FH_SIZE, FH_SIZE); // orig. file_hdr
-        fo->write(obuf, ph.u_len - FH_SIZE);           // orig. text+data+relocs
+        fo->write(obuf + (ph.u_len - FH_SIZE), FH_SIZE); // orig. file_hdr
+        fo->write(obuf, ph.u_len - FH_SIZE);             // orig. text+data+relocs
 
         // copy any overlay
         copyOverlay(fo, overlay, obuf);

@@ -97,7 +97,7 @@ jobs:
           echo "CMAKE_MAKE_PROGRAM=$m" >> $GITHUB_ENV
 
       - run: ls -laF "$HOME" "$GITHUB_WORKSPACE" || true
-      - run: cat "$HOME/.gitconfig" || true
+      - run: set -x; cat "$HOME/.gitconfig" || true
       - run: cd ~/.local/bin/llvm-mingw*/. && echo "$PWD" && ls -laF
       # run: cd ~/.local/bin/llvm-mingw*/. && echo "$PWD" && tree -sF -d --du
       # run: cd ~/.local/bin/llvm-mingw*/. && echo "$PWD" && tree -sF    --du

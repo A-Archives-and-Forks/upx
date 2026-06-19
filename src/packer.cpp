@@ -58,7 +58,6 @@ void Packer::assertPacker() const {
 #if DEBUG
     assert(getFormat() > 0);
     assert(getFormat() < 255);
-    assert(isValidFormat(getFormat()));
     assert(getVersion() >= 11);
     assert(getVersion() <= 14);
     assert(strlen(getName()) <= 15);
@@ -85,6 +84,7 @@ void Packer::assertPacker() const {
     assert(bele == l->bele);
     delete l;
 #endif
+    assert_noexcept(isValidFormat(getFormat()));
 }
 
 /*************************************************************************

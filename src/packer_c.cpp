@@ -38,6 +38,16 @@
           (format >= 129 && format <= UPX_F_DYLIB_PPC64))) {
         return false;
     }
+    switch (format) {
+    case 6:
+    case 11:
+    case 13:
+    case 17:
+    case 38:
+    case 41:
+    case 130:
+        return false;
+    }
     return true;
 }
 
