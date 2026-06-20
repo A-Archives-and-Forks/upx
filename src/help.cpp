@@ -165,6 +165,9 @@ struct PackerNames final {
         for (const int *m = pb->getCompressionMethods(M_ALL, 10); *m != M_END; m++) {
             if (*m >= 0) {
                 assert_noexcept(Packer::isValidCompressionMethod(*m));
+                assert_noexcept(*m != 0);
+                for (unsigned mm = 0; mm < e.methods_count; mm++)
+                    assert_noexcept(e.methods[mm] != (unsigned) *m);
                 assert_noexcept(e.methods_count < PackerBase::MAX_METHODS);
                 e.methods[e.methods_count++] = *m;
             }
@@ -172,6 +175,9 @@ struct PackerNames final {
         for (const int *f = pb->getFilters(); f != nullptr && *f != FT_END; f++) {
             if (*f >= 0) {
                 assert_noexcept(Filter::isValidFilter(*f));
+                assert_noexcept(*f != 0);
+                for (unsigned ff = 0; ff < e.filters_count; ff++)
+                    assert_noexcept(e.filters[ff] != (unsigned) *f);
                 assert_noexcept(e.filters_count < PackerBase::MAX_FILTERS);
                 e.filters[e.filters_count++] = *f;
             }
