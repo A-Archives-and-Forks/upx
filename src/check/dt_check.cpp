@@ -361,7 +361,7 @@ struct CheckIntegral final {
         T x[2];
     };
     template <class U>
-    struct TestU {
+    struct TestU final {
         U a = {};
         const U b = {};
         static constexpr U c = {};
