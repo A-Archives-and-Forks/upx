@@ -703,11 +703,18 @@ void show_sysinfo(const char *options_var) {
         cf_print("__SIZEOF_POINTER__", "%lld", __SIZEOF_POINTER__ + 0, 3);
 #endif
         cf_print("__SIZEOF_SIZE_T__", "%lld", (long long) sizeof(size_t), 3);
+#if (ACC_ABI_BIG_ENDIAN)
+        cf_print("ACC_ABI_BIG_ENDIAN", "%lld", ACC_ABI_BIG_ENDIAN + 0, 4);
+#elif (ACC_ABI_LITTLE_ENDIAN)
+        cf_print("ACC_ABI_LITTLE_ENDIAN", "%lld", ACC_ABI_LITTLE_ENDIAN + 0, 4);
+#else
+#error "ACC_ABI_ENDIAN"
+#endif
 #if defined(UPX_CONFIG_DISABLE_WSTRICT)
-        cf_print("UPX_CONFIG_DISABLE_WSTRICT", "%lld", UPX_CONFIG_DISABLE_WSTRICT + 0, 3);
+        cf_print("UPX_CONFIG_DISABLE_WSTRICT", "%lld", UPX_CONFIG_DISABLE_WSTRICT + 0, 4);
 #endif
 #if defined(UPX_CONFIG_DISABLE_WERROR)
-        cf_print("UPX_CONFIG_DISABLE_WERROR", "%lld", UPX_CONFIG_DISABLE_WERROR + 0, 3);
+        cf_print("UPX_CONFIG_DISABLE_WERROR", "%lld", UPX_CONFIG_DISABLE_WERROR + 0, 4);
 #endif
 #if defined(DOCTEST_CONFIG_DISABLE)
         cf_print("DOCTEST_CONFIG_DISABLE", "%lld", DOCTEST_CONFIG_DISABLE + 0, 3);

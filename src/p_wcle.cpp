@@ -128,7 +128,7 @@ tribool PackWcle::canPack() {
 // elements (of course I still have to handle empty bundles)
 
 void PackWcle::encodeEntryTable() {
-    unsigned count, object, n;
+    unsigned count, n;
     SPAN_S_VAR(byte, p, ientries, soentries);
     n = 0;
     while (*p) {
@@ -136,9 +136,8 @@ void PackWcle::encodeEntryTable() {
         n += count;
         if (p[1] == 0) // unused bundle
             p += 2;
-        else if (p[1] == 3) // 32-bit bundle
-        {
-            object = get_le16(p + 2);
+        else if (p[1] == 3) { // 32-bit bundle
+            unsigned object = get_le16(p + 2);
             if (object == 0 || object > objects)
                 throwCantPack("bad object number in entry table");
             object -= 1;
@@ -706,7 +705,7 @@ void PackWcle::decodeImage() {
 }
 
 void PackWcle::decodeEntryTable() {
-    unsigned count, object, n, r;
+    unsigned count, n, r;
     SPAN_S_VAR(byte, p, ientries, soentries);
     n = 0;
     while (*p) {
@@ -714,9 +713,8 @@ void PackWcle::decodeEntryTable() {
         n += count;
         if (p[1] == 0) // unused bundle
             p += 2;
-        else if (p[1] == 3) // 32-bit offset bundle
-        {
-            object = get_le16(p + 2);
+        else if (p[1] == 3) { // 32-bit offset bundle
+            unsigned object = get_le16(p + 2);
             if (object != 1)
                 throwCantUnpack("corrupted entry found");
             object = soobject_table;

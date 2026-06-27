@@ -109,7 +109,7 @@ struct TypeForSizeOf<const void> {
 };
 
 template <class T>
-struct ValueForSizeOf {
+struct ValueForSizeOf final {
     static const size_t value = sizeof(typename TypeForSizeOf<T>::type);
 };
 
@@ -149,7 +149,7 @@ static inline void xspan_mem_size_assert_ptrdiff(ptrdiff_t n) {
 // unfortunately doesn't work with some older versions of libstdc++
 // (TODO later: we now require C++17, so this now probably works on all supported platforms)
 template <class From, class To>
-struct XSpan_is_convertible : public std::is_convertible<From *, To *> {};
+struct XSpan_is_convertible final : public std::is_convertible<From *, To *> {};
 #else
 // manual implementation
 
@@ -177,8 +177,9 @@ struct XSpan_ptr_is_convertible<T, const T> : public std::true_type {};
 } // namespace XSpan_detail
 
 template <class From, class To>
-struct XSpan_is_convertible : public XSpan_detail::XSpan_ptr_is_convertible<
-                                  From, typename XSpan_detail::XSpan_void_to_T<From, To>::type> {};
+struct XSpan_is_convertible final
+    : public XSpan_detail::XSpan_ptr_is_convertible<
+          From, typename XSpan_detail::XSpan_void_to_T<From, To>::type> {};
 #endif
 
 #if DEBUG || 1

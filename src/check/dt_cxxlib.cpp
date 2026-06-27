@@ -1174,6 +1174,13 @@ struct alignas(1) TestXE final {
         set_le16(p, v);
     }
 
+    static noinline BE16 noinline_make_be16(unsigned v) noexcept { return BE16::make(v); }
+    static noinline BE32 noinline_make_be32(unsigned v) noexcept { return BE32::make(v); }
+    static noinline BE64 noinline_make_be64(upx_uint64_t v) noexcept { return BE64::make(v); }
+    static noinline LE16 noinline_make_le16(unsigned v) noexcept { return LE16::make(v); }
+    static noinline LE32 noinline_make_le32(unsigned v) noexcept { return LE32::make(v); }
+    static noinline LE64 noinline_make_le64(upx_uint64_t v) noexcept { return LE64::make(v); }
+
     static noinline int noinline_sign_extend32(unsigned v, unsigned bits) noexcept {
         return sign_extend32(v, bits);
     }
@@ -1432,9 +1439,9 @@ TEST_CASE("upx::run_time 1a") {
     const upx_uint32_t v32 = upx_uint32_t(acc_vget_acc_int64l_t(0xf4f3f2f1, 0));
     const upx_uint64_t v64 = upx_uint64_t(acc_vget_acc_int64l_t(0xf8f7f6f5f4f3f2f1ull, 0));
     {
-        assert_noexcept(TestCT::noinline_bswap16(v16) == 0xf1f2);
-        assert_noexcept(TestCT::noinline_bswap32(v32) == 0xf1f2f3f4);
-        assert_noexcept(TestCT::noinline_bswap64(v64) == 0xf1f2f3f4f5f6f7f8ull);
+        assert_noexcept2(TestCT::noinline_bswap16(v16) == 0xf1f2);
+        assert_noexcept2(TestCT::noinline_bswap32(v32) == 0xf1f2f3f4);
+        assert_noexcept2(TestCT::noinline_bswap64(v64) == 0xf1f2f3f4f5f6f7f8ull);
     }
     {
         upx_alignas_max byte aligned_buffer[32];
@@ -1491,10 +1498,10 @@ TEST_CASE("upx::run_time 1b") {
     const upx_uint32_t v32 = upx_uint32_t(acc_vget_acc_int64l_t(0xf4f3f2f1, 0));
     const upx_uint64_t v64 = upx_uint64_t(acc_vget_acc_int64l_t(0xf8f7f6f5f4f3f2f1ull, 0));
     {
-        assert_noexcept(TestXE::noinline_bswap16(v16) == 0xf1f2);
-        assert_noexcept(TestXE::noinline_bswap32(v32) == 0xf1f2f3f4);
-        assert_noexcept(TestXE::noinline_bswap64(v64) == 0xf1f2f3f4f5f6f7f8ull);
-        assert_noexcept(TestXE::noinline_bswap16_unsigned(v16) == 0xf1f2);
+        assert_noexcept2(TestXE::noinline_bswap16(v16) == 0xf1f2);
+        assert_noexcept2(TestXE::noinline_bswap32(v32) == 0xf1f2f3f4);
+        assert_noexcept2(TestXE::noinline_bswap64(v64) == 0xf1f2f3f4f5f6f7f8ull);
+        assert_noexcept2(TestXE::noinline_bswap16_unsigned(v16) == 0xf1f2);
     }
     {
         upx_alignas_max byte aligned_buffer[32];
@@ -1545,6 +1552,21 @@ TEST_CASE("upx::run_time 1b") {
 
         TestXE::noinline_set_be16_unsigned(buf2, v16);
         TestXE::noinline_set_le16_unsigned(buf2, v16);
+    }
+    {
+        assert_noexcept2(TestXE::noinline_make_be16(v32) == 0xf2f1);
+        assert_noexcept2(TestXE::noinline_make_be32(v32) == 0xf4f3f2f1);
+        assert_noexcept2(TestXE::noinline_make_be64(v64) == 0xf8f7f6f5f4f3f2f1ull);
+        assert_noexcept2(TestXE::noinline_make_le16(v32) == 0xf2f1);
+        assert_noexcept2(TestXE::noinline_make_le32(v32) == 0xf4f3f2f1);
+        assert_noexcept2(TestXE::noinline_make_le64(v64) == 0xf8f7f6f5f4f3f2f1ull);
+        const int n = acc_vget_int(0, 0);
+        assert_noexcept2(TestXE::noinline_make_be16(n) == 0);
+        assert_noexcept2(TestXE::noinline_make_be32(n) == 0);
+        assert_noexcept2(TestXE::noinline_make_be64(n) == 0);
+        assert_noexcept2(TestXE::noinline_make_le16(n) == 0);
+        assert_noexcept2(TestXE::noinline_make_le32(n) == 0);
+        assert_noexcept2(TestXE::noinline_make_le64(n) == 0);
     }
     {
         for (int i = -8; i < 8; i++) {
