@@ -1181,6 +1181,56 @@ struct alignas(1) TestXE final {
     static noinline LE32 noinline_make_le32(unsigned v) noexcept { return LE32::make(v); }
     static noinline LE64 noinline_make_le64(upx_uint64_t v) noexcept { return LE64::make(v); }
 
+    static noinline bool noinline_equal_be16(BE16 a, unsigned v) noexcept {
+        BE16 b = BE16::make(v);
+        return a == b;
+    }
+    static noinline bool noinline_equal_be32(BE32 a, unsigned v) noexcept {
+        BE32 b = BE32::make(v);
+        return a == b;
+    }
+    static noinline bool noinline_equal_be64(BE64 a, upx_uint64_t v) noexcept {
+        BE64 b = BE64::make(v);
+        return a == b;
+    }
+    static noinline bool noinline_equal_le16(LE16 a, unsigned v) noexcept {
+        LE16 b = LE16::make(v);
+        return a == b;
+    }
+    static noinline bool noinline_equal_le32(LE32 a, unsigned v) noexcept {
+        LE32 b = LE32::make(v);
+        return a == b;
+    }
+    static noinline bool noinline_equal_le64(LE64 a, upx_uint64_t v) noexcept {
+        LE64 b = LE64::make(v);
+        return a == b;
+    }
+
+    static noinline bool noinline_less_be16(BE16 a, unsigned v) noexcept {
+        BE16 b = BE16::make(v);
+        return a < b;
+    }
+    static noinline bool noinline_less_be32(BE32 a, unsigned v) noexcept {
+        BE32 b = BE32::make(v);
+        return a < b;
+    }
+    static noinline bool noinline_less_be64(BE64 a, upx_uint64_t v) noexcept {
+        BE64 b = BE64::make(v);
+        return a < b;
+    }
+    static noinline bool noinline_less_le16(LE16 a, unsigned v) noexcept {
+        LE16 b = LE16::make(v);
+        return a < b;
+    }
+    static noinline bool noinline_less_le32(LE32 a, unsigned v) noexcept {
+        LE32 b = LE32::make(v);
+        return a < b;
+    }
+    static noinline bool noinline_less_le64(LE64 a, upx_uint64_t v) noexcept {
+        LE64 b = LE64::make(v);
+        return a < b;
+    }
+
     static noinline int noinline_sign_extend32(unsigned v, unsigned bits) noexcept {
         return sign_extend32(v, bits);
     }
@@ -1567,6 +1617,26 @@ TEST_CASE("upx::run_time 1b") {
         assert_noexcept2(TestXE::noinline_make_le16(n) == 0);
         assert_noexcept2(TestXE::noinline_make_le32(n) == 0);
         assert_noexcept2(TestXE::noinline_make_le64(n) == 0);
+    }
+    {
+        const BE16 be16 = BE16::make(acc_vget_int(v16, 0));
+        const BE32 be32 = BE32::make(acc_vget_int(v32, 0));
+        const BE64 be64 = BE64::make(acc_vget_acc_int64l_t(v64, 0));
+        const LE16 le16 = LE16::make(acc_vget_int(v16, 0));
+        const LE32 le32 = LE32::make(acc_vget_int(v32, 0));
+        const LE64 le64 = LE64::make(acc_vget_acc_int64l_t(v64, 0));
+        assert_noexcept2(TestXE::noinline_equal_be16(be16, v32));
+        assert_noexcept2(TestXE::noinline_equal_be32(be32, v32));
+        assert_noexcept2(TestXE::noinline_equal_be64(be64, v64));
+        assert_noexcept2(TestXE::noinline_equal_le16(le16, v32));
+        assert_noexcept2(TestXE::noinline_equal_le32(le32, v32));
+        assert_noexcept2(TestXE::noinline_equal_le64(le64, v64));
+        assert_noexcept2(!TestXE::noinline_less_be16(be16, v32));
+        assert_noexcept2(!TestXE::noinline_less_be32(be32, v32));
+        assert_noexcept2(!TestXE::noinline_less_be64(be64, v64));
+        assert_noexcept2(!TestXE::noinline_less_le16(le16, v32));
+        assert_noexcept2(!TestXE::noinline_less_le32(le32, v32));
+        assert_noexcept2(!TestXE::noinline_less_le64(le64, v64));
     }
     {
         for (int i = -8; i < 8; i++) {
