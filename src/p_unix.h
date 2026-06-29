@@ -29,11 +29,7 @@
    <jreiser@users.sourceforge.net>
  */
 
-
 #pragma once
-#ifndef __UPX_P_UNIX_H
-#define __UPX_P_UNIX_H 1
-
 
 /*************************************************************************
 // Abstract class for all Unix-type packers.
@@ -43,7 +39,7 @@
 class PackUnix : public Packer
 {
 public:
-    ~PackUnix();
+    ~PackUnix() noexcept;
     typedef Packer super;
 protected:
     PackUnix(InputFile *f);
@@ -54,7 +50,8 @@ public:
 
     virtual void pack(OutputFile *fo) override;
     virtual void unpack(OutputFile *fo) override;
-    unsigned const ELF_NRV_FUDGE = 10;
+
+    static unsigned constexpr ELF_NRV_FUDGE = 10;
     // ELF runtime stubs do not use overlapping de-compression
     // because multiple independent segments (PT_LOAD) makes it too messy.
     // But at compression we want the savings in space and cache misses
@@ -211,8 +208,5 @@ protected:
         LE32 p_blocksize;
     };
 };
-
-
-#endif /* already included */
 
 /* vim:set ts=4 sw=4 et: */

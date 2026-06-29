@@ -65,7 +65,7 @@ PackUnix::PackUnix(InputFile *f) :
     // Besides, cannot figure out why asl_slide_Shdrs does not work.
 }
 
-PackUnix::~PackUnix()
+PackUnix::~PackUnix() noexcept
 {
     opt->o_unix.android_shlib = saved_opt_android_shlib;
 }
