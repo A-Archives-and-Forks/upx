@@ -7835,7 +7835,7 @@ void PackLinuxElf64::unpack(OutputFile *fo)
         || !mem_size_valid(1, blocksize, OVERHEAD))
         throwCantUnpack("p_info corrupted");
 
-    ibuf.alloc(blocksize + OVERHEAD);
+    ibuf.alloc(blocksize + OVERHEAD + (blocksize >> ELF_NRV_FUDGE));
     b_info bhdr; memset(&bhdr, 0, sizeof(bhdr));
     fi->readx(&bhdr, szb_info);
     ph.u_len = get_te32(&bhdr.sz_unc);
@@ -9103,7 +9103,7 @@ void PackLinuxElf32::unpack(OutputFile *fo)
         || !mem_size_valid(1, blocksize, OVERHEAD))
         throwCantUnpack("p_info corrupted");
 
-    ibuf.alloc(blocksize + OVERHEAD);
+    ibuf.alloc(blocksize + OVERHEAD + (blocksize >> ELF_NRV_FUDGE));
     b_info bhdr; memset(&bhdr, 0, sizeof(bhdr));
     fi->readx(&bhdr, szb_info);
     ph.u_len = get_te32(&bhdr.sz_unc);

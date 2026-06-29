@@ -1507,7 +1507,7 @@ void PackMachBase<T>::unpack(OutputFile *fo)
         infoWarning("packed size too big; discarding appended data, keeping backup");
     }
 
-    ibuf.alloc(blocksize + OVERHEAD);
+    ibuf.alloc(blocksize + OVERHEAD + (blocksize >> ELF_NRV_FUDGE));
     b_info bhdr; memset(&bhdr, 0, sizeof(bhdr));
     fi->readx(&bhdr, sizeof(bhdr));
     ph.u_len = get_te32(&bhdr.sz_unc);

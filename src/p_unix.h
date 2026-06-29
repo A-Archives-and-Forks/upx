@@ -54,6 +54,14 @@ public:
 
     virtual void pack(OutputFile *fo) override;
     virtual void unpack(OutputFile *fo) override;
+    unsigned const ELF_NRV_FUDGE = 10;
+    // ELF runtime stubs do not use overlapping de-compression
+    // because multiple independent segments (PT_LOAD) makes it too messy.
+    // But at compression we want the savings in space and cache misses
+    // that overlapping provides.  Unfortunately the fixed OVERHEAD (0x800)
+    // is not enough for checking NRV overlapping de-compression of some
+    // obnoxious Go-lang executables havng large blocks (multiple megabytes)
+    // of semi-random data.  So increase OVERHEAD by (size >> ELF_NRV_FUDGE).
 
     virtual tribool canPack() override;
     virtual tribool canUnpack() override; // bool, except -1: format known, but not packed
